@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # go_app
+  app:
+    container_name: ${APP_CONTAINER_NAME}
+    build:
+      context: .
+      dockerfile: ./build/app/Dockerfile
+    depends_on:
+    - db
+    volumes:
+      - ./:/go/src/app
+      - .env:/go/src/app/.env
+    tty: true
+    ports:
+      - ${APP_PORT}
+    environment:
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+  # postgresql
+  db:
+    container_name: ${DB_CONTAINER_NAME}
+    build:
+      context: .
+      dockerfile: ./build/db/Dockerfile
+    environment:
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - db-store:/var/lib/postgresql/data
+      - ./app/database/init:/docker-entrypoint-initdb.d 
+    ports:
+      - ${DB_PORT}:5432
+
+volumes:
+  db-store:
