@@ -1,2 +1,3 @@
+*.exe
 .env
-dev001
+air.toml
